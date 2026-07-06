@@ -6,6 +6,9 @@ services:
       - "5000:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+    depends_on:
+      - mongo
+      - ollama
 
   frontend:
     build:
@@ -16,3 +19,25 @@ services:
       - "3000:80"
     depends_on:
       - backend
+
+  ollama:
+    image: ollama/ollama:0.31.1
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27055:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  ollama-data:
+  mongo_data:
