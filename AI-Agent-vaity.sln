@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DB1B6E95-0942-42B1-977A-54AF622D5AE0}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
+	ProjectSection(SolutionItems) = preProject
+		backend\.dockerignore = backend\.dockerignore
+		backend\Dockerfile = backend\Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "backend\Api.csproj", "{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{B07F8BD0-5F92-4D57-A97F-A542A6262E3D}"
+	ProjectSection(SolutionItems) = preProject
+		frontend\.dockerignore = frontend\.dockerignore
+		frontend\Dockerfile = frontend\Dockerfile
+		frontend\eslint.config.js = frontend\eslint.config.js
+		frontend\index.html = frontend\index.html
+		frontend\package-lock.json = frontend\package-lock.json
+		frontend\package.json = frontend\package.json
+		frontend\tsconfig.app.json = frontend\tsconfig.app.json
+		frontend\tsconfig.json = frontend\tsconfig.json
+		frontend\tsconfig.node.json = frontend\tsconfig.node.json
+		frontend\vite.config.ts = frontend\vite.config.ts
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A178F882-13A7-45C8-BE47-830BC6B3C7FD}"
+	ProjectSection(SolutionItems) = preProject
+		frontend\src\App.tsx = frontend\src\App.tsx
+		frontend\src\main.tsx = frontend\src\main.tsx
+		frontend\src\styles.css = frontend\src\styles.css
+		frontend\src\vite-env.d.ts = frontend\src\vite-env.d.ts
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Debug|x64.Build.0 = Debug|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Debug|x86.Build.0 = Debug|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Release|x64.ActiveCfg = Release|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Release|x64.Build.0 = Release|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Release|x86.ActiveCfg = Release|Any CPU
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{A178F882-13A7-45C8-BE47-830BC6B3C7FD} = {B07F8BD0-5F92-4D57-A97F-A542A6262E3D}
+	EndGlobalSection
+EndGlobal
