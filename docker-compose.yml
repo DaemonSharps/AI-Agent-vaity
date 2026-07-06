@@ -6,6 +6,9 @@ services:
       - "5000:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      Ollama__BaseUrl: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - mongo
       - ollama
@@ -22,16 +25,12 @@ services:
 
   ollama:
     image: ollama/ollama:0.31.1
-    container_name: ollama
     restart: unless-stopped
-    ports:
-      - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama
 
   mongo:
     image: mongo:7
-    container_name: mongo
     restart: unless-stopped
     ports:
       - "27055:27017"

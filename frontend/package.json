@@ -7,19 +7,20 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-markdown": "^10.1.0",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
-    "@types/node": "latest",
     "@eslint/js": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
-    "typescript-eslint": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "typescript-eslint": "latest"
   }
 }
