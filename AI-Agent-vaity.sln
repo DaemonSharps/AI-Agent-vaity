@@ -39,6 +39,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A178F882-13A
 		frontend\src\vite-env.d.ts = frontend\src\vite-env.d.ts
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{8C6B56A3-8629-4E3A-8942-92658380B547}"
+	ProjectSection(SolutionItems) = preProject
+		docs\rfc-ai-agent-chat.md = docs\rfc-ai-agent-chat.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "implementation-plan", "implementation-plan", "{93A8EB87-6627-4E4D-A304-421657E30F56}"
+	ProjectSection(SolutionItems) = preProject
+		docs\implementation-plan\00-overview.md = docs\implementation-plan\00-overview.md
+		docs\implementation-plan\01-backend-infrastructure.md = docs\implementation-plan\01-backend-infrastructure.md
+		docs\implementation-plan\02-mongodb-chat-storage.md = docs\implementation-plan\02-mongodb-chat-storage.md
+		docs\implementation-plan\03-ollama-refit-client.md = docs\implementation-plan\03-ollama-refit-client.md
+		docs\implementation-plan\04-websocket-chat-backend.md = docs\implementation-plan\04-websocket-chat-backend.md
+		docs\implementation-plan\05-frontend-chat-shell.md = docs\implementation-plan\05-frontend-chat-shell.md
+		docs\implementation-plan\06-frontend-websocket-markdown.md = docs\implementation-plan\06-frontend-websocket-markdown.md
+		docs\implementation-plan\07-final-stabilization.md = docs\implementation-plan\07-final-stabilization.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,5 +85,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1C6A3671-41D9-40AA-A0ED-7A7EED1623C3} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
 		{A178F882-13A7-45C8-BE47-830BC6B3C7FD} = {B07F8BD0-5F92-4D57-A97F-A542A6262E3D}
+		{93A8EB87-6627-4E4D-A304-421657E30F56} = {8C6B56A3-8629-4E3A-8942-92658380B547}
 	EndGlobalSection
 EndGlobal
