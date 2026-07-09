@@ -45,6 +45,10 @@ export default function App() {
   const [isSending, setIsSending] = useState(false);
   const [isSocketOpen, setIsSocketOpen] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [renameChatTarget, setRenameChatTarget] = useState<Chat | null>(null);
+  const [renameTitle, setRenameTitle] = useState('');
+  const [deleteChatTarget, setDeleteChatTarget] = useState<Chat | null>(null);
+  const [isModalSubmitting, setIsModalSubmitting] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const pendingUserMessageIdRef = useRef<string | null>(null);
   const lastSentMessageRef = useRef<string>('');
@@ -243,42 +247,79 @@ export default function App() {
     }
   }
 
-  async function renameChat(chat: Chat) {
-    const title = window.prompt('Rename chat', chat.title)?.trim();
-    if (!title) {
+  function openRenameChat(chat: Chat) {
+    setRenameChatTarget(chat);
+    setRenameTitle(chat.title);
+    setError(null);
+  }
+
+  async function submitRenameChat(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!renameChatTarget) {
       return;
     }
 
+    const title = renameTitle.trim();
+    if (!title) {
+      setError('Title is required.');
+      return;
+    }
+
+    setIsModalSubmitting(true);
     try {
-      const updatedChat = await request<Chat>(`/api/chats/${chat.id}`, {
+      const updatedChat = await request<Chat>(`/api/chats/${renameChatTarget.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ title }),
       });
       setChats((current) => current.map((item) => (item.id === updatedChat.id ? updatedChat : item)));
+      setRenameChatTarget(null);
+      setRenameTitle('');
       setError(null);
     } catch (reason) {
       setError(getErrorMessage(reason, 'Unable to rename chat.'));
+    } finally {
+      setIsModalSubmitting(false);
     }
   }
 
-  async function deleteChat(chat: Chat) {
-    if (!window.confirm(`Delete "${chat.title}"?`)) {
+  function openDeleteChat(chat: Chat) {
+    setDeleteChatTarget(chat);
+    setError(null);
+  }
+
+  async function confirmDeleteChat() {
+    if (!deleteChatTarget) {
       return;
     }
 
+    setIsModalSubmitting(true);
     try {
-      await request<void>(`/api/chats/${chat.id}`, { method: 'DELETE' });
+      await request<void>(`/api/chats/${deleteChatTarget.id}`, { method: 'DELETE' });
       setChats((current) => {
-        const nextChats = current.filter((item) => item.id !== chat.id);
-        if (activeChatId === chat.id) {
+        const nextChats = current.filter((item) => item.id !== deleteChatTarget.id);
+        if (activeChatId === deleteChatTarget.id) {
           setActiveChatId(nextChats[0]?.id ?? null);
         }
         return nextChats;
       });
+      setDeleteChatTarget(null);
       setError(null);
     } catch (reason) {
       setError(getErrorMessage(reason, 'Unable to delete chat.'));
+    } finally {
+      setIsModalSubmitting(false);
     }
+  }
+
+  function closeModal() {
+    if (isModalSubmitting) {
+      return;
+    }
+
+    setRenameChatTarget(null);
+    setRenameTitle('');
+    setDeleteChatTarget(null);
   }
 
   function sendDraft() {
@@ -370,8 +411,8 @@ export default function App() {
                 <time>{formatDate(chat.updatedAt)}</time>
               </button>
               <div className="chat-actions">
-                <button onClick={() => renameChat(chat)}>Rename</button>
-                <button onClick={() => deleteChat(chat)}>Delete</button>
+                <button onClick={() => openRenameChat(chat)}>Rename</button>
+                <button onClick={() => openDeleteChat(chat)}>Delete</button>
               </div>
             </article>
           ))}
@@ -429,6 +470,60 @@ export default function App() {
           <p className="hint">Enter sends. Shift + Enter adds a new line.</p>
         </footer>
       </section>
+
+      {renameChatTarget ? (
+        <div className="modal-backdrop" role="presentation" onMouseDown={closeModal}>
+          <section className="modal-card" role="dialog" aria-modal="true" aria-labelledby="rename-chat-title" onMouseDown={(event) => event.stopPropagation()}>
+            <form onSubmit={submitRenameChat}>
+              <div className="modal-header">
+                <div>
+                  <p className="eyebrow">Chat settings</p>
+                  <h3 id="rename-chat-title">Rename chat</h3>
+                </div>
+              </div>
+
+              <label className="field-label" htmlFor="rename-chat-input">Title</label>
+              <input
+                id="rename-chat-input"
+                autoFocus
+                value={renameTitle}
+                onChange={(event) => setRenameTitle(event.target.value)}
+                disabled={isModalSubmitting}
+                maxLength={120}
+              />
+
+              <div className="modal-actions">
+                <button className="ghost-button" type="button" onClick={closeModal} disabled={isModalSubmitting}>Cancel</button>
+                <button className="primary-button" type="submit" disabled={isModalSubmitting || !renameTitle.trim()}>
+                  {isModalSubmitting ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {deleteChatTarget ? (
+        <div className="modal-backdrop" role="presentation" onMouseDown={closeModal}>
+          <section className="modal-card danger" role="dialog" aria-modal="true" aria-labelledby="delete-chat-title" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <p className="eyebrow">Danger zone</p>
+                <h3 id="delete-chat-title">Delete chat</h3>
+              </div>
+            </div>
+
+            <p className="modal-copy">Delete "{deleteChatTarget.title}"? This removes the chat and all of its messages.</p>
+
+            <div className="modal-actions">
+              <button className="ghost-button" type="button" onClick={closeModal} disabled={isModalSubmitting}>Cancel</button>
+              <button className="danger-button" type="button" onClick={confirmDeleteChat} disabled={isModalSubmitting}>
+                {isModalSubmitting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
