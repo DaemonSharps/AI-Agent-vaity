@@ -345,6 +345,32 @@ h3 {
   font-family: "SFMono-Regular", Consolas, monospace;
 }
 
+.markdown-body table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 12px;
+}
+
+.markdown-body th,
+.markdown-body td {
+  padding: 8px 10px;
+  border: 1px solid #cfcfcf;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-body th {
+  background: #f2f2f2;
+  font-weight: 800;
+}
+
+.markdown-body tr:nth-child(even) td {
+  background: #fafafa;
+}
+
 .jump-button {
   align-self: flex-end;
   margin: 0 24px 12px 0;

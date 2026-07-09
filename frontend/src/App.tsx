@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { locale, text } from './localization';
 
 type Chat = {
@@ -551,7 +552,27 @@ function MessageBubble({ message }: { message: Message }) {
         <div className="markdown-body">
           <ReactMarkdown
             skipHtml
-            allowedElements={['p', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'strong', 'em']}
+            remarkPlugins={[remarkGfm]}
+            allowedElements={[
+              'p',
+              'h1',
+              'h2',
+              'h3',
+              'ul',
+              'ol',
+              'li',
+              'a',
+              'blockquote',
+              'code',
+              'strong',
+              'em',
+              'table',
+              'thead',
+              'tbody',
+              'tr',
+              'th',
+              'td',
+            ]}
             components={{
               a({ href, children, ...props }) {
                 const safeHref = sanitizeHref(href);
