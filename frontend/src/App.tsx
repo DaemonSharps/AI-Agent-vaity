@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { locale, text } from './localization';
 
 type Chat = {
   id: string;
@@ -30,10 +31,12 @@ type WsEvent = {
 const apiUrl = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000').replace(/\/$/, '');
 const maxMessageLength = 4000;
 
-const timeFormatter = new Intl.DateTimeFormat(undefined, {
+const timeFormatter = new Intl.DateTimeFormat(locale, {
   hour: '2-digit',
   minute: '2-digit',
 });
+
+const dateFormatter = new Intl.DateTimeFormat(locale, { month: 'short', day: '2-digit' });
 
 export default function App() {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -61,6 +64,7 @@ export default function App() {
   const canSend = Boolean(activeChatId && draft.trim() && !isDraftTooLong && !isSending && isSocketOpen);
 
   useEffect(() => {
+    document.title = text.app.documentTitle;
     loadChats();
   }, []);
 
@@ -102,8 +106,7 @@ export default function App() {
     });
 
     if (!response.ok) {
-      const body = await response.json().catch(() => null) as { message?: string } | null;
-      throw new Error(body?.message ?? `Request failed with ${response.status}`);
+      throw new Error(text.errors.requestFailed(response.status));
     }
 
     if (response.status === 204) {
@@ -122,7 +125,7 @@ export default function App() {
       setChats(loadedChats);
       setActiveChatId((current) => current ?? loadedChats[0]?.id ?? null);
     } catch (reason) {
-      setError(getErrorMessage(reason, 'Unable to load chats.'));
+      setError(getErrorMessage(reason, text.errors.loadChats));
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +138,7 @@ export default function App() {
       const loadedMessages = await request<Message[]>(`/api/chats/${chatId}/messages`);
       setMessages(loadedMessages);
     } catch (reason) {
-      setError(getErrorMessage(reason, 'Unable to load chat history.'));
+      setError(getErrorMessage(reason, text.errors.loadMessages));
     }
   }
 
@@ -157,7 +160,7 @@ export default function App() {
     };
 
     socket.onerror = () => {
-      setError('WebSocket connection failed.');
+      setError(text.errors.websocketFailed);
       setIsSending(false);
     };
 
@@ -214,7 +217,7 @@ export default function App() {
     }
 
     if (event.type === 'error') {
-      setError(event.message ?? 'Unable to get response from the model.');
+      setError(text.errors.modelResponseFailed);
       setIsSending(false);
       setMessages((current) => current.map((message) => (
         message.status === 'pending' || message.status === 'streaming' ? { ...message, status: 'failed' } : message
@@ -233,7 +236,7 @@ export default function App() {
 
   async function createChat() {
     if (isChatLimitReached) {
-      setError('Chat limit reached. Delete a chat before creating a new one.');
+      setError(text.errors.chatLimitReached);
       return;
     }
 
@@ -243,7 +246,7 @@ export default function App() {
       setActiveChatId(chat.id);
       setError(null);
     } catch (reason) {
-      setError(getErrorMessage(reason, 'Unable to create chat.'));
+      setError(getErrorMessage(reason, text.errors.createChat));
     }
   }
 
@@ -262,7 +265,7 @@ export default function App() {
 
     const title = renameTitle.trim();
     if (!title) {
-      setError('Title is required.');
+      setError(text.errors.titleRequired);
       return;
     }
 
@@ -277,7 +280,7 @@ export default function App() {
       setRenameTitle('');
       setError(null);
     } catch (reason) {
-      setError(getErrorMessage(reason, 'Unable to rename chat.'));
+      setError(getErrorMessage(reason, text.errors.renameChat));
     } finally {
       setIsModalSubmitting(false);
     }
@@ -306,7 +309,7 @@ export default function App() {
       setDeleteChatTarget(null);
       setError(null);
     } catch (reason) {
-      setError(getErrorMessage(reason, 'Unable to delete chat.'));
+      setError(getErrorMessage(reason, text.errors.deleteChat));
     } finally {
       setIsModalSubmitting(false);
     }
@@ -339,12 +342,12 @@ export default function App() {
     }
 
     if (!content) {
-      setError('Message is required.');
+      setError(text.errors.messageRequired);
       return;
     }
 
     if (content.length > maxMessageLength) {
-      setError('Message is longer than 4000 characters.');
+      setError(text.errors.messageTooLong);
       return;
     }
 
@@ -390,20 +393,20 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div>
-            <p className="eyebrow">AI Agent</p>
-            <h1>Chats</h1>
+            <p className="eyebrow">{text.app.productName}</p>
+            <h1>{text.sidebar.title}</h1>
           </div>
           <button className="primary-button" onClick={createChat} disabled={isChatLimitReached}>
-            New
+            {text.sidebar.newChat}
           </button>
         </div>
 
-        <p className="limit-copy">{chats.length}/10 chats</p>
-        {isChatLimitReached ? <p className="error-text">Chat limit reached.</p> : null}
+        <p className="limit-copy">{text.sidebar.chatLimit(chats.length, 10)}</p>
+        {isChatLimitReached ? <p className="error-text">{text.sidebar.chatLimitReached}</p> : null}
 
         <div className="chat-list">
-          {isLoading ? <p className="muted">Loading chats...</p> : null}
-          {!isLoading && chats.length === 0 ? <p className="empty-state">No chats yet. Create one to start.</p> : null}
+          {isLoading ? <p className="muted">{text.sidebar.loadingChats}</p> : null}
+          {!isLoading && chats.length === 0 ? <p className="empty-state">{text.sidebar.emptyChats}</p> : null}
           {chats.map((chat) => (
             <article className={chat.id === activeChatId ? 'chat-list-item active' : 'chat-list-item'} key={chat.id}>
               <button className="chat-select" onClick={() => setActiveChatId(chat.id)}>
@@ -411,8 +414,8 @@ export default function App() {
                 <time>{formatDate(chat.updatedAt)}</time>
               </button>
               <div className="chat-actions">
-                <button onClick={() => openRenameChat(chat)}>Rename</button>
-                <button onClick={() => openDeleteChat(chat)}>Delete</button>
+                <button onClick={() => openRenameChat(chat)}>{text.sidebar.rename}</button>
+                <button onClick={() => openDeleteChat(chat)}>{text.sidebar.delete}</button>
               </div>
             </article>
           ))}
@@ -422,24 +425,24 @@ export default function App() {
       <section className="chat-panel">
         <header className="chat-header">
           <div>
-            <p className="eyebrow">Current chat</p>
-            <h2>{activeChat?.title ?? 'No chat selected'}</h2>
+            <p className="eyebrow">{text.chat.currentChat}</p>
+            <h2>{activeChat?.title ?? text.chat.noChatSelected}</h2>
           </div>
           <span className={isSocketOpen ? 'status-pill connected' : 'status-pill'}>
-            {activeChatId ? (isSocketOpen ? 'Connected' : 'Connecting') : 'Idle'}
+            {activeChatId ? (isSocketOpen ? text.connection.connected : text.connection.connecting) : text.connection.idle}
           </span>
         </header>
 
         {error ? (
           <div className="error-banner">
             <span>{error}</span>
-            {lastSentMessageRef.current && !isSending ? <button onClick={retryLastMessage}>Retry</button> : null}
+            {lastSentMessageRef.current && !isSending ? <button onClick={retryLastMessage}>{text.actions.retry}</button> : null}
           </div>
         ) : null}
 
         <div className="messages" onScroll={handleMessagesScroll} ref={messagesRef}>
-          {!activeChatId ? <p className="empty-state centered">Select or create a chat.</p> : null}
-          {activeChatId && messages.length === 0 ? <p className="empty-state centered">Ask the agent anything.</p> : null}
+          {!activeChatId ? <p className="empty-state centered">{text.chat.selectOrCreateChat}</p> : null}
+          {activeChatId && messages.length === 0 ? <p className="empty-state centered">{text.chat.emptyMessages}</p> : null}
           {messages.map((message) => (
             <MessageBubble message={message} key={message.id} />
           ))}
@@ -448,7 +451,7 @@ export default function App() {
 
         {!isAtBottom ? (
           <button className="jump-button" onClick={() => bottomRef.current?.scrollIntoView({ block: 'end' })}>
-            Jump to latest
+            {text.chat.jumpToLatest}
           </button>
         ) : null}
 
@@ -457,17 +460,17 @@ export default function App() {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={handleDraftKeyDown}
-            placeholder={activeChatId ? 'Message the agent...' : 'Create a chat first'}
+            placeholder={activeChatId ? text.composer.placeholder : text.composer.disabledPlaceholder}
             disabled={!activeChatId || isSending}
             rows={3}
           />
           <div className="composer-footer">
             <span className={isDraftTooLong ? 'error-text' : 'muted'}>{draft.length}/{maxMessageLength}</span>
             <button className="send-button" onClick={sendDraft} disabled={!canSend}>
-              {isSending ? 'Sending...' : 'Send'}
+              {isSending ? text.composer.sending : text.composer.send}
             </button>
           </div>
-          <p className="hint">Enter sends. Shift + Enter adds a new line.</p>
+          <p className="hint">{text.composer.hint}</p>
         </footer>
       </section>
 
@@ -477,12 +480,12 @@ export default function App() {
             <form onSubmit={submitRenameChat}>
               <div className="modal-header">
                 <div>
-                  <p className="eyebrow">Chat settings</p>
-                  <h3 id="rename-chat-title">Rename chat</h3>
+                  <p className="eyebrow">{text.modal.renameSection}</p>
+                  <h3 id="rename-chat-title">{text.modal.renameTitle}</h3>
                 </div>
               </div>
 
-              <label className="field-label" htmlFor="rename-chat-input">Title</label>
+              <label className="field-label" htmlFor="rename-chat-input">{text.modal.titleField}</label>
               <input
                 id="rename-chat-input"
                 autoFocus
@@ -493,9 +496,9 @@ export default function App() {
               />
 
               <div className="modal-actions">
-                <button className="ghost-button" type="button" onClick={closeModal} disabled={isModalSubmitting}>Cancel</button>
+                <button className="ghost-button" type="button" onClick={closeModal} disabled={isModalSubmitting}>{text.modal.cancel}</button>
                 <button className="primary-button" type="submit" disabled={isModalSubmitting || !renameTitle.trim()}>
-                  {isModalSubmitting ? 'Saving...' : 'Save'}
+                  {isModalSubmitting ? text.modal.saving : text.modal.save}
                 </button>
               </div>
             </form>
@@ -508,17 +511,17 @@ export default function App() {
           <section className="modal-card danger" role="dialog" aria-modal="true" aria-labelledby="delete-chat-title" onMouseDown={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <p className="eyebrow">Danger zone</p>
-                <h3 id="delete-chat-title">Delete chat</h3>
+                <p className="eyebrow">{text.modal.dangerSection}</p>
+                <h3 id="delete-chat-title">{text.modal.deleteTitle}</h3>
               </div>
             </div>
 
-            <p className="modal-copy">Delete "{deleteChatTarget.title}"? This removes the chat and all of its messages.</p>
+            <p className="modal-copy">{text.modal.deleteCopy(deleteChatTarget.title)}</p>
 
             <div className="modal-actions">
-              <button className="ghost-button" type="button" onClick={closeModal} disabled={isModalSubmitting}>Cancel</button>
+              <button className="ghost-button" type="button" onClick={closeModal} disabled={isModalSubmitting}>{text.modal.cancel}</button>
               <button className="danger-button" type="button" onClick={confirmDeleteChat} disabled={isModalSubmitting}>
-                {isModalSubmitting ? 'Deleting...' : 'Delete'}
+                {isModalSubmitting ? text.modal.deleting : text.modal.delete}
               </button>
             </div>
           </section>
@@ -532,14 +535,14 @@ function MessageBubble({ message }: { message: Message }) {
   return (
     <article className={`message ${message.role}`}>
       <div className="message-meta">
-        <strong>{message.role === 'user' ? 'You' : 'Assistant'}</strong>
+        <strong>{message.role === 'user' ? text.message.user : text.message.assistant}</strong>
         <span>{timeFormatter.format(new Date(message.createdAt))}</span>
-        <span>{message.status}</span>
+        <span>{text.message.status[message.status]}</span>
       </div>
 
       {message.thinking ? (
         <details className="thinking" open={message.status === 'streaming'}>
-          <summary>Thinking</summary>
+          <summary>{text.message.thinking}</summary>
           <p>{message.thinking}</p>
         </details>
       ) : null}
@@ -561,7 +564,7 @@ function MessageBubble({ message }: { message: Message }) {
               },
             }}
           >
-            {message.content || (message.status === 'streaming' ? 'Generating...' : '')}
+            {message.content || (message.status === 'streaming' ? text.message.generating : '')}
           </ReactMarkdown>
         </div>
       ) : (
@@ -593,7 +596,7 @@ function getNextOrder(messages: Message[]) {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, { month: 'short', day: '2-digit' }).format(new Date(value));
+  return dateFormatter.format(new Date(value));
 }
 
 function getErrorMessage(reason: unknown, fallback: string) {
