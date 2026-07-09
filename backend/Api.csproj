@@ -9,4 +9,8 @@
     <PackageReference Include="Refit" Version="13.1.0" />
     <PackageReference Include="Refit.HttpClientFactory" Version="13.1.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Dockerfile" />
+    <None Remove=".dockerignore" />
+  </ItemGroup>
 </Project>
