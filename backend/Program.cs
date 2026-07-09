@@ -174,9 +174,8 @@ static async Task HandleChatWebSocketAsync(
 
             var responseContent = new StringBuilder();
             var responseThinking = new StringBuilder();
-            IReadOnlyList<int>? updatedContext = null;
 
-            await foreach (var ollamaEvent in ollama.StreamChatAsync(history, chat.OllamaContext, context.RequestAborted))
+            await foreach (var ollamaEvent in ollama.StreamChatAsync(history, context.RequestAborted))
             {
                 if (ollamaEvent.Type == OllamaChatEvent.ThinkingDelta)
                 {
@@ -191,17 +190,10 @@ static async Task HandleChatWebSocketAsync(
                     await SendJsonAsync(socket, new { type = WebSocketEventTypes.AssistantDelta, messageId = assistantMessage.Id, content = ollamaEvent.Content }, context.RequestAborted);
                     continue;
                 }
-
-                if (ollamaEvent.Type == OllamaChatEvent.Complete)
-                {
-                    updatedContext = ollamaEvent.Context;
-                }
             }
 
             var thinking = responseThinking.Length == 0 ? null : responseThinking.ToString();
             await messages.CompleteAssistantMessageAsync(assistantMessage.Id, responseContent.ToString(), thinking, context.RequestAborted);
-            await chats.SaveOllamaContextAsync(chatId, AppConstants.DefaultUserId, updatedContext ?? chat.OllamaContext, context.RequestAborted);
-            chat = await chats.GetChatAsync(chatId, AppConstants.DefaultUserId, context.RequestAborted) ?? chat;
             await SendJsonAsync(socket, new { type = WebSocketEventTypes.AssistantComplete, messageId = assistantMessage.Id, status = MessageStatuses.Complete }, context.RequestAborted);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)

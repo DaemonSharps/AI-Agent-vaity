@@ -14,6 +14,4 @@ public sealed class ChatDocument
     public DateTime CreatedAt { get; init; }
 
     public DateTime UpdatedAt { get; set; }
-
-    public List<int>? OllamaContext { get; set; }
 }

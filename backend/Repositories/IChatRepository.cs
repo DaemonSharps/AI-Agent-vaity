@@ -14,7 +14,5 @@ public interface IChatRepository
 
     Task<bool> DeleteChatAsync(string chatId, string userId, CancellationToken cancellationToken);
 
-    Task SaveOllamaContextAsync(string chatId, string userId, IReadOnlyList<int>? context, CancellationToken cancellationToken);
-
     Task UpdateTitleIfDefaultAsync(string chatId, string userId, string title, CancellationToken cancellationToken);
 }

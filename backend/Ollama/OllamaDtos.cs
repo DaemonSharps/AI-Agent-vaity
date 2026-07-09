@@ -15,10 +15,6 @@ public sealed class OllamaChatRequest
 
     [JsonPropertyName("think")]
     public bool Think { get; init; }
-
-    [JsonPropertyName("context")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IReadOnlyList<int>? Context { get; init; }
 }
 
 public sealed class OllamaMessage
@@ -37,9 +33,6 @@ public sealed class OllamaChatResponse
 
     [JsonPropertyName("done")]
     public bool Done { get; init; }
-
-    [JsonPropertyName("context")]
-    public IReadOnlyList<int>? Context { get; init; }
 }
 
 public sealed class OllamaResponseMessage

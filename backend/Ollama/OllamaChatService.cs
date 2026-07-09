@@ -12,7 +12,6 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
 
     public async IAsyncEnumerable<OllamaChatEvent> StreamChatAsync(
         IReadOnlyCollection<MessageDocument> history,
-        IReadOnlyList<int>? context,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var ollamaOptions = options.Value;
@@ -21,7 +20,6 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
             Model = ollamaOptions.Model,
             Stream = ollamaOptions.UseStream,
             Think = ollamaOptions.UseThink,
-            Context = context,
             Messages = history
                 .Where(message => message.Status is MessageStatuses.Sent or MessageStatuses.Complete)
                 .Where(message => message.Role is MessageRoles.User or MessageRoles.Assistant)
@@ -38,7 +36,6 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(stream);
-        IReadOnlyList<int>? latestContext = null;
 
         while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
         {
@@ -54,11 +51,6 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
                 continue;
             }
 
-            if (chunk.Context is not null)
-            {
-                latestContext = chunk.Context;
-            }
-
             if (!string.IsNullOrEmpty(chunk.Message?.Thinking))
             {
                 yield return new OllamaChatEvent(OllamaChatEvent.ThinkingDelta, chunk.Message.Thinking);
@@ -71,7 +63,7 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
 
             if (chunk.Done)
             {
-                yield return new OllamaChatEvent(OllamaChatEvent.Complete, string.Empty, latestContext);
+                yield return new OllamaChatEvent(OllamaChatEvent.Complete, string.Empty);
             }
         }
     }

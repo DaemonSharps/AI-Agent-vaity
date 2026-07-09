@@ -71,15 +71,6 @@ public sealed class ChatRepository(MongoDbContext db) : IChatRepository
         return true;
     }
 
-    public async Task SaveOllamaContextAsync(string chatId, string userId, IReadOnlyList<int>? context, CancellationToken cancellationToken)
-    {
-        var update = Builders<ChatDocument>.Update
-            .Set(chat => chat.OllamaContext, context?.ToList())
-            .Set(chat => chat.UpdatedAt, DateTime.UtcNow);
-
-        await db.Chats.UpdateOneAsync(chat => chat.Id == chatId && chat.UserId == userId, update, cancellationToken: cancellationToken);
-    }
-
     public async Task UpdateTitleIfDefaultAsync(string chatId, string userId, string title, CancellationToken cancellationToken)
     {
         var cleanTitle = title.Trim();
