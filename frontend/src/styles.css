@@ -24,6 +24,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -386,6 +387,37 @@ h3 {
   background: #fff;
 }
 
+.composer-footer {
+  flex-wrap: wrap;
+}
+
+.composer-controls,
+.mode-select-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mode-select-label span {
+  color: #555;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.mode-select-label select {
+  border: 1px solid #111;
+  background: #fff;
+  color: #050505;
+  padding: 10px 12px;
+  font-weight: 800;
+}
+
+.mode-select-label select:disabled {
+  border-color: #bbb;
+  background: #f4f4f4;
+  color: #777;
+}
+
 .composer textarea {
   width: 100%;
   max-height: 132px;
@@ -517,6 +549,20 @@ h3 {
 
   .modal-header .ghost-button,
   .modal-actions button {
+    width: 100%;
+  }
+
+  .composer-footer,
+  .composer-controls,
+  .mode-select-label {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .composer-controls,
+  .mode-select-label,
+  .mode-select-label select,
+  .send-button {
     width: 100%;
   }
 }

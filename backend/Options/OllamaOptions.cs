@@ -9,6 +9,4 @@ public sealed class OllamaOptions
     public string Model { get; init; } = string.Empty;
 
     public bool UseStream { get; init; }
-
-    public bool UseThink { get; init; }
 }

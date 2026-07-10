@@ -30,6 +30,11 @@ export const text = {
   composer: {
     placeholder: 'Напишите агенту...',
     disabledPlaceholder: 'Сначала создайте чат',
+    modeLabel: 'Режим',
+    modes: {
+      normal: 'Обычный',
+      thinking: 'Размышление',
+    },
     send: 'Отправить',
     sending: 'Отправка...',
     hint: 'Enter отправляет сообщение. Shift + Enter добавляет новую строку.',

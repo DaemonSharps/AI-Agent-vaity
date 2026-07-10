@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Api.Data;
 using Api.Options;
+using Api.WebSockets;
 using Microsoft.Extensions.Options;
 
 namespace Api.Ollama;
@@ -12,6 +13,7 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
 
     public async IAsyncEnumerable<OllamaChatEvent> StreamChatAsync(
         IReadOnlyCollection<MessageDocument> history,
+        ChatMode mode,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var ollamaOptions = options.Value;
@@ -19,7 +21,7 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
         {
             Model = ollamaOptions.Model,
             Stream = ollamaOptions.UseStream,
-            Think = ollamaOptions.UseThink,
+            Think = mode == ChatMode.Thinking,
             Messages = history
                 .Where(message => message.Status is MessageStatuses.Sent or MessageStatuses.Complete)
                 .Where(message => message.Role is MessageRoles.User or MessageRoles.Assistant)

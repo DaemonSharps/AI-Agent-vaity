@@ -141,7 +141,17 @@ static async Task HandleChatWebSocketAsync(
             continue;
         }
 
-        var clientMessage = JsonSerializer.Deserialize<ClientChatMessage>(rawMessage, AppJson.Options);
+        ClientChatMessage? clientMessage;
+        try
+        {
+            clientMessage = JsonSerializer.Deserialize<ClientChatMessage>(rawMessage, AppJson.Options);
+        }
+        catch (JsonException)
+        {
+            await SendJsonAsync(socket, new { type = WebSocketEventTypes.Error, message = "Invalid message payload." }, context.RequestAborted);
+            continue;
+        }
+
         if (clientMessage?.Type != WebSocketEventTypes.UserMessage)
         {
             await SendJsonAsync(socket, new { type = WebSocketEventTypes.Error, message = "Unsupported message type." }, context.RequestAborted);
@@ -175,7 +185,7 @@ static async Task HandleChatWebSocketAsync(
             var responseContent = new StringBuilder();
             var responseThinking = new StringBuilder();
 
-            await foreach (var ollamaEvent in ollama.StreamChatAsync(history, context.RequestAborted))
+            await foreach (var ollamaEvent in ollama.StreamChatAsync(history, clientMessage.Mode, context.RequestAborted))
             {
                 if (ollamaEvent.Type == OllamaChatEvent.ThinkingDelta)
                 {

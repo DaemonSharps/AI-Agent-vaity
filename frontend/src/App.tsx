@@ -21,6 +21,8 @@ type Message = {
   order: number;
 };
 
+type ChatMode = 'normal' | 'thinking';
+
 type WsEvent = {
   type: string;
   messageId?: string;
@@ -44,6 +46,7 @@ export default function App() {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState('');
+  const [selectedMode, setSelectedMode] = useState<ChatMode>('normal');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -56,6 +59,7 @@ export default function App() {
   const socketRef = useRef<WebSocket | null>(null);
   const pendingUserMessageIdRef = useRef<string | null>(null);
   const lastSentMessageRef = useRef<string>('');
+  const lastSentModeRef = useRef<ChatMode>('normal');
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -327,14 +331,14 @@ export default function App() {
   }
 
   function sendDraft() {
-    sendMessage(draft);
+    sendMessage(draft, selectedMode);
   }
 
   function retryLastMessage() {
-    sendMessage(lastSentMessageRef.current);
+    sendMessage(lastSentMessageRef.current, lastSentModeRef.current);
   }
 
-  function sendMessage(rawContent: string) {
+  function sendMessage(rawContent: string, mode: ChatMode) {
     const content = rawContent.trim();
     const socket = socketRef.current;
 
@@ -355,6 +359,7 @@ export default function App() {
     const tempId = `pending-${Date.now()}`;
     pendingUserMessageIdRef.current = tempId;
     lastSentMessageRef.current = content;
+    lastSentModeRef.current = mode;
     setMessages((current) => [
       ...current,
       {
@@ -370,7 +375,7 @@ export default function App() {
     setDraft('');
     setError(null);
     setIsSending(true);
-    socket.send(JSON.stringify({ type: 'user_message', content }));
+    socket.send(JSON.stringify({ type: 'user_message', content, mode }));
   }
 
   function handleDraftKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -467,9 +472,23 @@ export default function App() {
           />
           <div className="composer-footer">
             <span className={isDraftTooLong ? 'error-text' : 'muted'}>{draft.length}/{maxMessageLength}</span>
-            <button className="send-button" onClick={sendDraft} disabled={!canSend}>
-              {isSending ? text.composer.sending : text.composer.send}
-            </button>
+            <div className="composer-controls">
+              <label className="mode-select-label" htmlFor="chat-mode-select">
+                <span>{text.composer.modeLabel}</span>
+                <select
+                  id="chat-mode-select"
+                  value={selectedMode}
+                  onChange={(event) => setSelectedMode(event.target.value as ChatMode)}
+                  disabled={!activeChatId || isSending}
+                >
+                  <option value="normal">{text.composer.modes.normal}</option>
+                  <option value="thinking">{text.composer.modes.thinking}</option>
+                </select>
+              </label>
+              <button className="send-button" onClick={sendDraft} disabled={!canSend}>
+                {isSending ? text.composer.sending : text.composer.send}
+              </button>
+            </div>
           </div>
           <p className="hint">{text.composer.hint}</p>
         </footer>

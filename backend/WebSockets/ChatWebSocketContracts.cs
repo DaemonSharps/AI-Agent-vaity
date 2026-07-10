@@ -2,6 +2,12 @@ using System.Text.Json.Serialization;
 
 namespace Api.WebSockets;
 
+public enum ChatMode
+{
+    Normal,
+    Thinking
+}
+
 public sealed class ClientChatMessage
 {
     [JsonPropertyName("type")]
@@ -9,6 +15,9 @@ public sealed class ClientChatMessage
 
     [JsonPropertyName("content")]
     public string Content { get; init; } = string.Empty;
+
+    [JsonPropertyName("mode")]
+    public ChatMode Mode { get; init; } = ChatMode.Normal;
 }
 
 public static class WebSocketEventTypes
