@@ -26,6 +26,7 @@ services:
   ollama:
     image: ollama/ollama:0.31.1
     restart: unless-stopped
+    gpus: all
     ports:
       - "11434:11434"
     volumes:

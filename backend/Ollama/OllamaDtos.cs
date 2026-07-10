@@ -15,6 +15,27 @@ public sealed class OllamaChatRequest
 
     [JsonPropertyName("think")]
     public bool Think { get; init; }
+
+    [JsonPropertyName("options")]
+    public OllamaRequestOptions Options { get; init; } = new();
+}
+
+public sealed class OllamaRequestOptions
+{
+    [JsonPropertyName("num_ctx")]
+    public int NumContext { get; init; }
+
+    [JsonPropertyName("num_predict")]
+    public int NumPredict { get; init; }
+
+    [JsonPropertyName("temperature")]
+    public double Temperature { get; init; }
+
+    [JsonPropertyName("top_p")]
+    public double TopP { get; init; }
+
+    [JsonPropertyName("top_k")]
+    public int TopK { get; init; }
 }
 
 public sealed class OllamaMessage

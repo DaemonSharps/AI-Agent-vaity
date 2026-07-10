@@ -22,6 +22,14 @@ public sealed class OllamaChatService(IOllamaApi api, IOptions<OllamaOptions> op
             Model = ollamaOptions.Model,
             Stream = ollamaOptions.UseStream,
             Think = mode == ChatMode.Thinking,
+            Options = new OllamaRequestOptions
+            {
+                NumContext = ollamaOptions.Options.NumContext,
+                NumPredict = ollamaOptions.Options.NumPredict,
+                Temperature = ollamaOptions.Options.Temperature,
+                TopP = ollamaOptions.Options.TopP,
+                TopK = ollamaOptions.Options.TopK
+            },
             Messages = history
                 .Where(message => message.Status is MessageStatuses.Sent or MessageStatuses.Complete)
                 .Where(message => message.Role is MessageRoles.User or MessageRoles.Assistant)
